@@ -1,8 +1,9 @@
 name: SCA scan with Trivy
 on:
-  push:
-    branches: ['master']
-  pull_request:
+  workflow_run:
+    workflows: ["Build and run unit tests"]
+    types: 
+      - completed
 
 jobs:
   sca-trivy:
@@ -14,10 +15,18 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v6.0.2
 
+      - name: Setup Python
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@0.33.1
         with:
-          scan-type: 'repo'
+          scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL, HIGH, MEDIUM'
