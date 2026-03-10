@@ -1,0 +1,24 @@
+# Docs & meta
+README.rst
+LICENSE
+.gitignore
+owasp-asvs-4.0.csv
+
+# Git
+.git/
+.github/
+
+# CI/CD
+.gitlab-ci.yml
+
+# The "good" version
+good/
+
+# install script (Kali-specific)
+install-on-kali.sh
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.db
