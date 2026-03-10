@@ -30,9 +30,6 @@ jobs:
           name: vulpy-docker-image
           path: image.tar
 
-  tests:
-    runs-on: ubuntu-slim
-    steps:
-      - name: Run the tests
+      - name: Run tests
         run: echo "Running tests..."
-        
+    
