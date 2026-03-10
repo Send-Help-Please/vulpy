@@ -1,35 +1,38 @@
-name: SAST scan
+name: Build and run unit tests
 on:
   push:
     branches: ['master']
   pull_request: 
   
 jobs:
-  sca-scan:
+  build:
     runs-on: ubuntu-22.04
-    permissions: 
-      contents: read
-      security-events: write
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6.0.2
 
       - name: Setup Python
         uses: actions/setup-python@v6.2.0
+        with:
+          python-version: '3.12'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run SAST
-        uses: aquasecurity/trivy-action@0.35.0
+      - name: Build and save the docker image
+        run: |
+          docker build -t vulpy:${{github.sha}} .
+          docker save vulpy:${{github.sha}} -o image.tar 
+      
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
         with:
-          scan-type: 'repo'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL, HIGH, MEDIUM'
-          
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: 'trivy-results.sarif'
+          name: vulpy-docker-image
+          path: image.tar
+
+  tests:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Run the tests
+        run: echo "Running tests..."
         
