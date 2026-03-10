@@ -1,0 +1,29 @@
+name: SAST - Semgrep
+
+on:
+  workflow_run:
+    workflows: ["Build and run unit tests"]
+    types:
+      - completed
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Semgrep CE scan
+        run: semgrep scan --config p/owasp-top-ten --sarif > semgrep.sarif
+        continue-on-error: true
+
+      - name: Upload to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
